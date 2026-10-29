@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using prakt_8_trpo.Models;
 
 namespace prakt_8_trpo.Controllers
 {
@@ -6,9 +9,29 @@ namespace prakt_8_trpo.Controllers
     [Route("api/v1/auth")]
     public class AuthController : Controller
     {
-        public IActionResult Index ()
+        private static TasksDbContext _context = new TasksDbContext( );
+        
+        
+        [HttpPost("register")]
+        public IActionResult PostRegister ([FromBody] User user)
         {
-            return View( );
+            if (_context.Tasks.Find(user.Id) != null)
+                return BadRequest( );
+            if (user != null)
+            {
+                _context.Users.Add(user);
+                _context.SaveChanges( );
+                return Created( );
+            }
+            return BadRequest( );
         }
+        [HttpPost("login")]
+        public IActionResult PostLogin ([FromBody] User user)
+        {
+            return Ok( );
+        }
+
+
+
     }
 }

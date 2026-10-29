@@ -1,6 +1,15 @@
+using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+var key = builder.Configuration [ "Jwt:Key" ]
+    ?? throw new Exception("Не задан секретный ключ jwt");
+
+if (Encoding.UTF8.GetByteCount(key) < 32)
+    throw new Exception("Ключ JWT слишком короткий");
+
 
 builder.Services.AddControllers( );
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

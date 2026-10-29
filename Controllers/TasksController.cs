@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
+using prakt_8_trpo.Models;
 
 namespace prakt_8_trpo.Controllers
 {
@@ -7,9 +8,25 @@ namespace prakt_8_trpo.Controllers
     [Route("api/v1/tasks")]
     public class TasksController :Controller
     {
-        public IActionResult Index ()
+        private static TasksDbContext _context = new TasksDbContext( );
+
+        [HttpGet]
+        public IActionResult GetAll ()
         {
-            return View( );
+            return Ok(_context.Tasks.ToList());
+        }
+        [HttpPost]
+        public IActionResult Post([FromBody] Models.Task task)
+        {
+            if(_context.Tasks.Find(task.Id) != null)
+                return BadRequest( );
+            if (task != null)
+            {
+                _context.Tasks.Add(task);
+                _context.SaveChanges( );
+                return Created( );
+            }
+            return BadRequest( );
         }
     }
 }

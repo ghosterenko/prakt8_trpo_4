@@ -14,15 +14,15 @@ namespace prakt_8_trpo.Controllers
     [Route("api/v1/auth")]
     public class AuthController : Controller
     {
-        private static TasksDbContext _context = new TasksDbContext( );
+        private static TasksDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly IPasswordHasher<User> _hasher;
 
         public AuthController(IPasswordHasher<User> hasher, IConfiguration configuration)
         {
+            _context = new TasksDbContext( );
             _hasher = hasher;
             _configuration = configuration;
-
         }
 
 
@@ -34,14 +34,15 @@ namespace prakt_8_trpo.Controllers
 
             var user = new User { Login = request.Login };
             user.PasswordHash = _hasher.HashPassword(user, request.Password);
-
+            _context.Users.Add(user);
+            _context.SaveChanges( );
             return Ok("Пользователь зарегистрировн");
 
         }
         [HttpPost("login")]
         public IActionResult PostLogin (AuthRequest request)
         {
-            var user = _context.Users.ToList().Find(u => u.Login == request.Login);
+            var user = _context.Users.FirstOrDefault(u => u.Login == request.Login);
             if (user == null)
                 return Unauthorized( );
 
@@ -59,7 +60,7 @@ namespace prakt_8_trpo.Controllers
             return Ok(new
             {
                 access_token = token
-            }); ;
+            });
         }
 
         private string GenerateJwtToken(User user)

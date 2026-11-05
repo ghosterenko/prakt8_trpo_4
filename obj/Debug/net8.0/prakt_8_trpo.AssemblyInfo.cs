@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("prakt_8_trpo")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+105b23e3bc49487e299d177dcf0fc65981e74a63")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+97e16f1e05e64a1e66d670c5aa70f4535e601dcf")]
 [assembly: System.Reflection.AssemblyProductAttribute("prakt_8_trpo")]
 [assembly: System.Reflection.AssemblyTitleAttribute("prakt_8_trpo")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace prakt_8_trpo.Controllers
 {
@@ -14,13 +15,12 @@ namespace prakt_8_trpo.Controllers
     [Route("api/v1/auth")]
     public class AuthController : Controller
     {
-        private static TasksDbContext _context;
+        private static TasksDbContext _context = new TasksDbContext ();
         private readonly IConfiguration _configuration;
         private readonly IPasswordHasher<User> _hasher;
 
         public AuthController(IPasswordHasher<User> hasher, IConfiguration configuration)
         {
-            _context = new TasksDbContext( );
             _hasher = hasher;
             _configuration = configuration;
         }
@@ -48,12 +48,12 @@ namespace prakt_8_trpo.Controllers
 
             var result = _hasher.VerifyHashedPassword(
                 user,
-                user.PasswordHash,
+                user.PasswordHash!,
                 request.Password
             );
 
             if (result == PasswordVerificationResult.Failed)
-                return Unauthorized("Неверная пара логин/пароль");
+                return Unauthorized("Неверная пара логин/пароль");  
 
             var token = GenerateJwtToken(user);
 
@@ -63,11 +63,22 @@ namespace prakt_8_trpo.Controllers
             });
         }
 
+        [HttpGet("me")]
+        [Authorize]
+        public IActionResult Me()
+        { 
+            return Ok(new 
+            {
+                Login = User.Identity?.Name,
+                IsAdmin = User.IsInRole("Admin")
+            });
+        }
+
         private string GenerateJwtToken(User user)
         {
             var claims = new [ ]
             {
-                new Claim(ClaimTypes.Name, user.Login),
+                new Claim(ClaimTypes.Name, user.Login!),
                 new Claim(ClaimTypes.Role, "Admin")
             };
 

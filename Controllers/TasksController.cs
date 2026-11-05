@@ -18,9 +18,19 @@ namespace prakt_8_trpo.Controllers
         {
             return Ok(_context.Tasks.ToList());
         }
+
+        [HttpGet]
+        public IActionResult GetAllTasks()
+        {
+            return Ok(_context.Tasks.ToList());
+        }
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
+        {
+            return Ok(_context.Tasks.FirstOrDefault(t => t.Id == id));
+        }
+
         [HttpPost]
-        [Authorize(Roles = "admin")]
-        [Authorize(Roles = "user")]
         public IActionResult Post([FromBody] Models.Task task)
         {
             if(_context.Tasks.Find(task.Id) != null)

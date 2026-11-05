@@ -6,6 +6,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Identity;
 
 namespace prakt_8_trpo.Controllers
 {
@@ -15,25 +16,50 @@ namespace prakt_8_trpo.Controllers
     {
         private static TasksDbContext _context = new TasksDbContext( );
         private readonly IConfiguration _configuration;
-        
-        
-        [HttpPost("register")]
-        public IActionResult PostRegister ([FromBody] User user)
+        private readonly IPasswordHasher<User> _hasher;
+
+        public AuthController(IPasswordHasher<User> hasher, IConfiguration configuration)
         {
-            if (_context.Tasks.Find(user.Id) != null)
-                return BadRequest( );
-            if (user != null)
-            {
-                _context.Users.Add(user);
-                _context.SaveChanges( );
-                return Created( );
-            }
-            return BadRequest( );
+            _hasher = hasher;
+            _configuration = configuration;
+
+        }
+
+
+        [HttpPost("register")]
+        public IActionResult PostRegister (AuthRequest request)
+        {
+            if (_context.Users.Any(u => u.Login == request.Login))
+                return Conflict("Логин уже существует");
+
+            var user = new User { Login = request.Login };
+            user.PasswordHash = _hasher.HashPassword(user, request.Password);
+
+            return Ok("Пользователь зарегистрировн");
+
         }
         [HttpPost("login")]
-        public IActionResult PostLogin ([FromBody] User user)
+        public IActionResult PostLogin (AuthRequest request)
         {
-            return Ok( );
+            var user = _context.Users.ToList().Find(u => u.Login == request.Login);
+            if (user == null)
+                return Unauthorized( );
+
+            var result = _hasher.VerifyHashedPassword(
+                user,
+                user.PasswordHash,
+                request.Password
+            );
+
+            if (result == PasswordVerificationResult.Failed)
+                return Unauthorized("Неверная пара логин/пароль");
+
+            var token = GenerateJwtToken(user);
+
+            return Ok(new
+            {
+                access_token = token
+            }); ;
         }
 
         private string GenerateJwtToken(User user)

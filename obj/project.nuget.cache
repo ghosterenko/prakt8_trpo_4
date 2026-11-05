@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "IV5Nff48w6lopOXrjkdzcG+AslIBMDRi3Eq2tD3g3StjJmXrspo5KM58voObKAXoCYbIbQ5bvH/V+FY+Rx2y0Q==",
+  "dgSpecHash": "BLX4q1AT9yd026q1syjaqgRU+KB6nfoKyodriNoppib1QEOEuJMLzxJdWJCebJs6Su/8IeQnM1bD13fvnSDhow==",
   "success": true,
-  "projectFilePath": "C:\\Users\\st310-05\\Desktop\\prakt_8_trpo\\prakt_8_trpo.csproj",
+  "projectFilePath": "C:\\Users\\st310-05\\Desktop\\prakt8_trpo_4\\prakt_8_trpo.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\st310-05\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\st310-05\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

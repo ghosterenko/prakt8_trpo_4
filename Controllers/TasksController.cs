@@ -12,36 +12,81 @@ namespace prakt_8_trpo.Controllers
     {
         private static TasksDbContext _context = new TasksDbContext( );
 
+        [HttpGet]
+        public IActionResult GetTasks()
+        {
+            var currentUser = User.Identity?.Name;
+            return Ok(_context.Tasks.Where(t => t.OwnerLogin == currentUser).ToList());
+        }
         [HttpGet("all")]
         [Authorize(Roles = "admin")]
-        public IActionResult GetAll ()
+        public IActionResult GetAll()
         {
             return Ok(_context.Tasks.ToList());
         }
 
-        [HttpGet]
-        public IActionResult GetAllTasks()
-        {
-            return Ok(_context.Tasks.ToList());
-        }
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            return Ok(_context.Tasks.FirstOrDefault(t => t.Id == id));
+            var task = _context.Tasks.Find(id);
+            if (task == null) return NotFound();
+
+            if (task.OwnerLogin != User.Identity?.Name && !User.IsInRole("Admin"))
+                return Forbid();
+
+            return Ok(task);
         }
 
         [HttpPost]
         public IActionResult Post([FromBody] Models.Task task)
         {
-            if(_context.Tasks.Find(task.Id) != null)
-                return BadRequest( );
-            if (task != null)
-            {
-                _context.Tasks.Add(task);
-                _context.SaveChanges( );
-                return Created( );
-            }
-            return BadRequest( );
+            if (task == null) 
+                return BadRequest();
+
+            task.Id = 0;
+            task.OwnerLogin = User.Identity?.Name;
+            task.IsCompleted = false;
+
+            _context.Tasks.Add(task);
+            _context.SaveChanges();
+
+            return Created();
         }
+        [HttpPut("{id}")]
+        public IActionResult Put(int id, [FromBody] Models.Task taskUpdate)
+        {
+            var task = _context.Tasks.Find(id);
+            if (task == null) 
+                return NotFound();
+
+            if (task.OwnerLogin != User.Identity?.Name && !User.IsInRole("Admin"))
+                return Forbid();
+
+            task.Title = taskUpdate.Title;
+            task.Description = taskUpdate.Description;
+            task.IsCompleted = taskUpdate.IsCompleted;
+
+            _context.Tasks.Update(task);
+            _context.SaveChanges();
+
+            return Ok(task);
+        }
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var task = _context.Tasks.Find(id);
+
+            if (task == null)
+                return NotFound();
+
+            if (task.OwnerLogin != User.Identity?.Name && !User.IsInRole("Admin"))
+                return Forbid();
+
+            _context.Tasks.Remove(task);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+
     }
 }
